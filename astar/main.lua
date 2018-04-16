@@ -22,12 +22,27 @@ cursor = { pos = { x = 2, y = 2} }
 target = { pos = { x = 10, y = 10 } }
 
 
+local function mapGen(width, height)
+	map = {}
+	for row = 1, height do
+		map[row] = {}
+		for col = 1, width do
+			map[row][col] = love.math.random(0, 1)
+		end
+	end
+end
+
+function love.load()
+	mapGen(100, 100)
+end
+
+
 function love.update()
 	foundPath, closed, opened = AStar.findPath(map, cursor.pos, target.pos)
 end
 
 function love.draw()
-	local edge=20
+	local edge=5
 	for row = 1, #map do
 		for col =1,#map[row] do
 			if map[row][col] == 0 then

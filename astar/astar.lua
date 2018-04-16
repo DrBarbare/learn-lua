@@ -38,7 +38,7 @@ end
 function AStar.findPath(map, myPos, tgtPos)
 	local currentNode = { pos = myPos, G = 0, H = heuristic(myPos, tgtPos), F = 0, key = myPos.x .. ":" .. myPos.y}
 	closed = {}
-	opened = {}
+	opened = {currentNode}
 
 	while currentNode and not isGoal(currentNode.pos, tgtPos) do
 		-- Step 1 add neighbors
@@ -75,8 +75,10 @@ function AStar.findPath(map, myPos, tgtPos)
 
 		foundPath = currentNode
 		currentNode = min
-		opened[min.key] = nil
-		min = nil
+		if min then
+			opened[min.key] = nil
+			min = nil
+		end
 	end
 
 	return foundPath, closed, opened
