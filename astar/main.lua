@@ -1,3 +1,4 @@
+require('astar')
 -- Level
 map=
 {
@@ -20,77 +21,9 @@ map=
 cursor = { pos = { x = 2, y = 2} }
 target = { pos = { x = 10, y = 10 } }
 
-function norm1(myPos, tgtPos)
-	return math.abs(tgtPos.x - myPos.x) + math.abs(tgtPos.y - myPos.y)
-end
-
-function score(currentNode, pos, tgtPos)
-	local candidateNode = {}
-	candidateNode.pos = pos
-	dx = pos.x - currentNode.pos.x
-	dy = pos.y - currentNode.pos.y
-	candidateNode.G = currentNode.G + math.sqrt(dx * dx + dy * dy)
-	candidateNode.H = norm1(pos, tgtPos)
-	candidateNode.F = candidateNode.G + candidateNode.H
-	return candidateNode
-end
-
-function isGoal(cdt, tgt)
-	return cdt.x == tgt.x and cdt.y == tgt.y
-end
-
-function alreadyClosed(array, pos)
-	local answer = false
-	for _, node in ipairs(array) do
-		if node.pos.x == pos.x and node.pos.y == pos.y then
-			answer = true
-			break
-		end
-	end
-	return answer
-end
-
-function astar(myPos, tgtPos)
-	local currentNode = { pos = myPos, G = 0, H = norm1(myPos, tgtPos), F = 0 }
-	closed = {}
-	opened = {}
-
-	while currentNode and not isGoal(currentNode.pos, tgtPos) do
-		-- Step 1 add neighbors
-		for row = -1, 1, 1 do
-			for col = -1, 1, 1 do
-				pos = { x = currentNode.pos.x + col, y = currentNode.pos.y + row }
-				if (col == 0 and row == 0) then
-				elseif map[pos.y] and map[pos.y][pos.x] and map[pos.y][pos.x] == 1
-					and not alreadyClosed(closed, pos)
-				then
-					scoredNode = score(currentNode, pos, tgtPos)
-					scoredNode.parent = currentNode
-					table.insert(opened, scoredNode)
-				end
-			end
-		end
-
-		-- Step 2 grab best score neighbor
-		for index, node in ipairs(opened) do
-			if min == nil or node.F <= min.F then
-				min = node
-				selectedIndex = index
-			end
-		end
-
-		-- Step 3 iterate on neighbor
-		table.insert(closed, currentNode)
-		currentNode = min or nil
-		foundPath = currentNode
-		min = nil
-		table.remove(opened, selectedIndex)
-	end
-	
-end
 
 function love.update()
-	astar(cursor.pos, target.pos)
+	foundPath, closed, opened = AStar.findPath(map, cursor.pos, target.pos)
 end
 
 function love.draw()
@@ -109,8 +42,14 @@ function love.draw()
 		end
 	end
 	if closed then
-		for _, node in ipairs(closed) do
+		for _, node in pairs(closed) do
 			love.graphics.setColor(160, 160, 0)
+			love.graphics.rectangle('fill', node.pos.x * edge, node.pos.y * edge, edge, edge)
+		end
+	end
+	if opened then
+		for _, node in pairs(opened) do
+			love.graphics.setColor(200, 200, 0)
 			love.graphics.rectangle('fill', node.pos.x * edge, node.pos.y * edge, edge, edge)
 		end
 	end
