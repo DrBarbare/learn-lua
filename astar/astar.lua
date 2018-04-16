@@ -2,7 +2,13 @@ AStar = {}
 
 -- Norm1
 local function heuristic(myPos, tgtPos)
-	return math.abs(tgtPos.x - myPos.x) + math.abs(tgtPos.y - myPos.y)
+	local dx = math.abs(tgtPos.x - myPos.x)
+	local dy = math.abs(tgtPos.y - myPos.y)
+	local norm1 = dx + dy
+	-- octile heuristic (Linf), better for 6 movement
+	return norm1 + (math.sqrt(2) - 2) * math.min(dx, dy)
+	-- Manathan heuristic (L1), better if only 4 movement
+	-- return norm1
 end
 
 local function score(currentNode, pos, tgtPos)
@@ -39,8 +45,8 @@ function AStar.findPath(map, myPos, tgtPos)
 	local currentNode = { pos = myPos, G = 0, H = heuristic(myPos, tgtPos), F = 0, key = myPos.x .. ":" .. myPos.y}
 	closed = {}
 	opened = {currentNode}
-
-	while currentNode and not isGoal(currentNode.pos, tgtPos) do
+	reachableGoal = pathable(map, tgtPos.x, tgtPos.y)
+	while reachableGoal and currentNode and not isGoal(currentNode.pos, tgtPos) do
 		-- Step 1 add neighbors
 		for row = -1, 1, 1 do
 			for col = -1, 1, 1 do

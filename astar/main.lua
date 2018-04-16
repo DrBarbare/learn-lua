@@ -81,6 +81,9 @@ function love.draw()
 	end
 	love.graphics.setColor(60, 160, 60)
 	love.graphics.rectangle('fill', cursor.pos.x * edge, cursor.pos.y * edge, edge, edge)
+
+	love.graphics.setColor(255, 255, 255)
+	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), edge * (#map[1] + 2), 10)
 end
 
 function love.keypressed(key)
