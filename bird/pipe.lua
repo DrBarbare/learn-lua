@@ -91,7 +91,7 @@ function Pipe:colision(b)
 end
 
 function Pipe:move(dt)
-	self.x = self.x - 30 * dt
+	self.x = self.x - 60 * dt
 	return self.x
 end
 

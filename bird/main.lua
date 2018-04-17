@@ -21,7 +21,7 @@ end
 
 -- Events!
 function love.keypressed(key)
-	if key == 'space' then
+	if key == 'space' or key == ' ' then
 		birdy:flap()
 	elseif key == 'q' or key == 'escape' then
 		love.event.quit()

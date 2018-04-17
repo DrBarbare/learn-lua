@@ -26,13 +26,13 @@ end
 function Birdy:fall(dt)
 	local h = love.graphics.getHeight()
 	if self.y < h then
-		self.y = self.y + 30 * dt
+		self.y = self.y + 8000 * dt * dt
 	end
 end
 
 function Birdy:flap()
 	if self.y > 0 then
-		self.y = self.y - 30.0
+		self.y = self.y - 60.0
 	end
 end
 
