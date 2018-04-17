@@ -1,3 +1,4 @@
+require('jps')
 AStar = {}
 
 -- Norm1
@@ -42,7 +43,11 @@ local function pathable(map, x, y)
 end
 
 function AStar.findPath(map, myPos, tgtPos)
+	local mapPathable = function(x,y) return pathable(map, x, y) end
 	local currentNode = { pos = myPos, G = 0, H = heuristic(myPos, tgtPos), F = 0, key = myPos.x .. ":" .. myPos.y}
+
+	jump(mapPathable, myPos, {x = 1, y = 0}, tgtPos)
+
 	closed = {}
 	opened = {currentNode}
 	reachableGoal = pathable(map, tgtPos.x, tgtPos.y)
