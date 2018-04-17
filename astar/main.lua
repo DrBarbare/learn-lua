@@ -37,7 +37,31 @@ function love.load()
 end
 
 
-function love.update()
+
+function love.keypressed(key)
+	if key == 'space' or key == ' ' then
+		target.pos.x = cursor.pos.x
+		target.pos.y = cursor.pos.y
+	elseif key == 'q' or key == 'escape' then
+		love.event.quit()
+	end
+end
+
+function movementKey(dt)
+	bouncing = (bouncing or 0) + dt
+	if bouncing > 0.1 then
+		bouncing = 0
+		local isHeld = function(key) return love.keyboard.isDown(key) end
+		if isHeld('w') then cursor.pos.y = cursor.pos.y - 1
+			elseif isHeld('s') then cursor.pos.y = cursor.pos.y + 1
+			elseif isHeld('a') then cursor.pos.x = cursor.pos.x - 1
+			elseif isHeld('d') then cursor.pos.x = cursor.pos.x + 1
+		end
+	end
+end
+
+function love.update(dt)
+	movementKey(dt)
 	foundPath, closed, opened = AStar.findPath(map, cursor.pos, target.pos)
 end
 
@@ -84,17 +108,4 @@ function love.draw()
 
 	love.graphics.setColor(255, 255, 255)
 	love.graphics.print("Current FPS: "..tostring(love.timer.getFPS( )), edge * (#map[1] + 2), 10)
-end
-
-function love.keypressed(key)
-	if key == 'w' then cursor.pos.y = cursor.pos.y - 1
-	elseif key == 's' then cursor.pos.y = cursor.pos.y + 1
-	elseif key == 'a' then cursor.pos.x = cursor.pos.x - 1
-	elseif key == 'd' then cursor.pos.x = cursor.pos.x + 1
-	elseif key == 'space' then
-		target.pos.x = cursor.pos.x
-		target.pos.y = cursor.pos.y
-	elseif key == 'q' or key == 'escape' then
-		love.event.quit()
-	end
 end
