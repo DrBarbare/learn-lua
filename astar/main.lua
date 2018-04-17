@@ -27,7 +27,12 @@ local function mapGen(width, height)
 	for row = 1, height do
 		map[row] = {}
 		for col = 1, width do
-			map[row][col] = love.math.random(0, 1)
+			local ran = love.math.random(0, 4)
+			if ran == 0 then
+				map[row][col] = 0
+			else
+				map[row][col] = 1
+			end
 		end
 	end
 end
@@ -66,7 +71,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	local edge=5
+	local edge=16
 	for row = 1, #map do
 		for col =1,#map[row] do
 			if map[row][col] == 0 then
