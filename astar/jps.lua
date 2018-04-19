@@ -22,14 +22,14 @@ local permutation = {
 	['W'] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 },
 	['S'] = { 3, 6, 9, 2, 5, 8, 1, 4, 7 },
 	-- Diagonal
-	['NE'] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-	['SE'] = { 7, 4, 1, 8, 5, 2, 9, 6, 3 },
-	['SW'] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 },
-	['NW'] = { 3, 6, 9, 2, 5, 8, 1, 4, 7 }
+	['SE'] = { 1, 2, 3, 4, 5, 6, 7, 8, 9 }, --NE
+	['NE'] = { 7, 4, 1, 8, 5, 2, 9, 6, 3 }, --SE
+	['NW'] = { 9, 8, 7, 6, 5, 4, 3, 2, 1 }, --SW
+	['SW'] = { 3, 6, 9, 2, 5, 8, 1, 4, 7 }  --NW
 }
 
 -- List of orientation OUT of the box
-local orientationDelta = {
+local neighborDelta = {
 	{x=-1,y=-1 }, -- NW
 	{x= 0,y=-1 }, -- N
 	{x= 1,y=-1 }, -- NE
@@ -60,23 +60,24 @@ local function isGoal(cdt, tgt)
 end
 
 local function coordinates(pos, delta)
-	local nextPos = {}
-	nextPos.x = pos.x + delta.x
-	nextPos.y = pos.y + delta.y
+	local nextPos = {
+		x = pos.x + delta.x,
+		y = pos.y + delta.y
+	}
 	return nextPos
 end
 
-local function forcedNeighbor(pathable, pos, ori)
+local function forcedNeighbor(pathable, pos, ori, tgtPos)
 	local orilen = string.len(ori) -- Straight has one letter, diagonal has 2
 
 	local permu  = permutation[ori]
 	local coords = function(index)
 		local p = permu[index]
 		--print("For index: " .. index .. " got " .. p)
-		local o = orientationDelta[p]
-		--print("For index: " .. index .. " got " .. p .. " -> {" .. o.x .. "x" .. o.y .. "}")
+		local o = neighborDelta[p]
+		--print("For index: " .. index .. " got " .. p .. " -> Delta{" .. o.x .. "x" .. o.y .. "}")
 		local c = coordinates(pos, o)
-		--print("For index: " .. index .. " got " .. p .. " -> {" .. o.x .. "x" .. o.y .. "} -> {" .. c.x .. "x" .. c.y .. "}")
+	--	print("For index: " .. index .. " got " .. p .. " -> Delta{" .. o.x .. "x" .. o.y .. "} -> Coods{" .. c.x .. "x" .. c.y .. "}")
 		return c
 	end
 	local checkNeighbor = function(index)
@@ -86,14 +87,14 @@ local function forcedNeighbor(pathable, pos, ori)
 
 
 	-- Diagonal case
-	-- 1 2 3
+	-- \ 2 3
 	-- 4 X 6
-	-- / 8 9
+	-- 7 8 9
 	if orilen == 2 then
-		if not checkNeighbor(4) then return { pos = coords(1) } end
-		if not checkNeighbor(8) then return { pos = coords(9) } end
-		return jump(pathable, pos, deltas[ str:sub(1, 1, ori) ], tgtPos)
-		       or jump(pathable, pos, deltas[ str:sub(2, 2, ori) ], tgtPos)
+		if not checkNeighbor(2) then return { pos = coords(3) } end
+		if not checkNeighbor(4) then return { pos = coords(7) } end
+		return jump(pathable, pos, deltas[ string.sub(ori, 1, 1) ], tgtPos)
+		       or jump(pathable, pos, deltas[ string.sub(ori, 2, 2) ], tgtPos)
 
 	-- Straight case
 	-- 1 2 3
@@ -107,8 +108,8 @@ local function forcedNeighbor(pathable, pos, ori)
 end
 
 jump = function(pathable, pos, delta, tgtPos)
-	nextPos = coordinates(pos, delta)
-	--print("Next pos: " .. nextPos.x .. "x" .. nextPos.y)
+	local nextPos = coordinates(pos, delta)
+	-- print("Jump from: {" .. nextPos.x .. "x" .. nextPos.y .. "} -> {" .. tgtPos.x .. "x" .. tgtPos.y .. "}")
 
 	if not pathable(nextPos.x, nextPos.y) then return nil end
 	if isGoal(nextPos, tgtPos) then return { pos = nextPos } end
@@ -116,7 +117,8 @@ jump = function(pathable, pos, delta, tgtPos)
 	-- Retrive orientation
 	ori = orientation(delta)
 
-	return forcedNeighbor(pathable, nextPos, ori) or jump(pathable, nextPos, delta, tgtPos)	
+	return forcedNeighbor(pathable, nextPos, ori, tgtPos)
+	       or jump(pathable, nextPos, delta, tgtPos)	
 end
 
 return jump
