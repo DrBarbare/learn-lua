@@ -23,7 +23,7 @@ local function score(currentNode, pos, tgtPos)
 
 	candidateNode = jump(mapPathable, candidateNode, { x = dx, y = dy }, tgtPos ) or candidateNode
 
-	candidateNode.G = currentNode.G + math.sqrt(dx * dx + dy * dy)
+	candidateNode.G = currentNode.G + ((dx ~= 0 and dy ~= 0) and math.sqrt(2) or 1)
 	candidateNode.H = heuristic(pos, tgtPos)
 	candidateNode.F = candidateNode.G + candidateNode.H
 	return candidateNode
