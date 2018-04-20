@@ -1,4 +1,4 @@
---require('jps')
+require('jps')
 AStar = {}
 
 -- Norm1
@@ -20,6 +20,7 @@ local function score(currentNode, pos, tgtPos)
 	candidateNode.G = currentNode.G + math.sqrt(dx * dx + dy * dy)
 	candidateNode.H = heuristic(pos, tgtPos)
 	candidateNode.F = candidateNode.G + candidateNode.H
+	candidateNode.parent = currentNode
 	return candidateNode
 end
 
@@ -61,7 +62,6 @@ function AStar.findPath(map, myPos, tgtPos)
 					and not opened[idx]
 				then
 					scoredNode = score(currentNode, pos, tgtPos)
-					scoredNode.parent = currentNode
 
 					-- insert if nil
 					opened[idx] = scoredNode

@@ -59,66 +59,56 @@ local function isGoal(cdt, tgt)
 	return cdt.x == tgt.x and cdt.y == tgt.y
 end
 
-local function coordinates(pos, delta)
-	local nextPos = {
-		x = pos.x + delta.x,
-		y = pos.y + delta.y
+local function nextPointExpanded(current, delta)
+	local nxt = {
+		pos = {
+			x = current.pos.x + delta.x,
+			y = current.pos.y + delta.y
+		},
+		parent = current
 	}
-	return nextPos
+	return nxt
 end
 
-local function forcedNeighbor(pathable, pos, ori, tgtPos)
+local function forcedNeighbor(pathable, current, ori, tgtPos)
 	local orilen = string.len(ori) -- Straight has one letter, diagonal has 2
 
 	local permu  = permutation[ori]
-	local coords = function(index)
-		local p = permu[index]
-		--print("For index: " .. index .. " got " .. p)
-		local o = neighborDelta[p]
-		--print("For index: " .. index .. " got " .. p .. " -> Delta{" .. o.x .. "x" .. o.y .. "}")
-		local c = coordinates(pos, o)
-	--	print("For index: " .. index .. " got " .. p .. " -> Delta{" .. o.x .. "x" .. o.y .. "} -> Coods{" .. c.x .. "x" .. c.y .. "}")
-		return c
-	end
-	local checkNeighbor = function(index)
-		local c = coords(index)
+	local pathableNeightbor = function(index)
+		local c = nextPointExpanded(current, neighborDelta[permu[index]]).pos
 		return pathable(c.x, c.y)
 	end
-
 
 	-- Diagonal case
 	-- \ 2 3
 	-- 4 X 6
 	-- 7 8 9
 	if orilen == 2 then
-		if not checkNeighbor(2) then return { pos = coords(3) } end
-		if not checkNeighbor(4) then return { pos = coords(7) } end
-		return jump(pathable, pos, deltas[ string.sub(ori, 1, 1) ], tgtPos)
-		       or jump(pathable, pos, deltas[ string.sub(ori, 2, 2) ], tgtPos)
+		if not pathableNeightbor(2) or not pathableNeightbor(4) then return current end
+		return jump(pathable, current, deltas[ string.sub(ori, 1, 1) ], tgtPos)
+		       or jump(pathable, current, deltas[ string.sub(ori, 2, 2) ], tgtPos)
 
 	-- Straight case
 	-- 1 2 3
 	-- - X 6
 	-- 7 8 9
 	else
-		if not checkNeighbor(2) then return { pos = coords(3) } end
-		if not checkNeighbor(8) then return { pos = coords(9) } end
-		return nil
+		if not pathableNeightbor(2) or not pathableNeightbor(8) then return current
+		else return nil
+		end
 	end
 end
 
-jump = function(pathable, pos, delta, tgtPos)
-	local nextPos = coordinates(pos, delta)
-	-- print("Jump from: {" .. nextPos.x .. "x" .. nextPos.y .. "} -> {" .. tgtPos.x .. "x" .. tgtPos.y .. "}")
+jump = function(pathable, current, delta, tgtPos)
+	local nxt = nextPointExpanded(current, delta)
 
-	if not pathable(nextPos.x, nextPos.y) then return nil end
-	if isGoal(nextPos, tgtPos) then return { pos = nextPos } end
+	if not pathable(nxt.pos.x, nxt.pos.y) then return nil end
+	if isGoal(nxt.pos, tgtPos) then return nxt end
 
 	-- Retrive orientation
-	ori = orientation(delta)
-
-	return forcedNeighbor(pathable, nextPos, ori, tgtPos)
-	       or jump(pathable, nextPos, delta, tgtPos)	
+	local ori = orientation(delta)
+	return forcedNeighbor(pathable, nxt, ori, tgtPos)
+	       or jump(pathable, nxt, delta, tgtPos)	
 end
 
 return jump
