@@ -13,14 +13,19 @@ local function heuristic(myPos, tgtPos)
 end
 
 local function score(currentNode, pos, tgtPos)
-	local candidateNode = {}
-	candidateNode.pos = pos
+	local candidateNode = {
+		pos = pos,
+		parent = currentNode
+	}
+
 	dx = pos.x - currentNode.pos.x
 	dy = pos.y - currentNode.pos.y
+
+	candidateNode = jump(mapPathable, candidateNode, { x = dx, y = dy }, tgtPos ) or candidateNode
+
 	candidateNode.G = currentNode.G + math.sqrt(dx * dx + dy * dy)
 	candidateNode.H = heuristic(pos, tgtPos)
 	candidateNode.F = candidateNode.G + candidateNode.H
-	candidateNode.parent = currentNode
 	return candidateNode
 end
 
@@ -44,7 +49,7 @@ local function pathable(map, x, y)
 end
 
 function AStar.findPath(map, myPos, tgtPos)
-	local mapPathable = function(x,y) return pathable(map, x, y) end
+	mapPathable = function(x,y) return pathable(map, x, y) end
 	local currentNode = { pos = myPos, G = 0, H = heuristic(myPos, tgtPos), F = 0, key = myPos.x .. ":" .. myPos.y}
 
 	closed = {}

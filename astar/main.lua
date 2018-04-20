@@ -71,7 +71,7 @@ function love.update(dt)
 end
 
 function love.draw()
-	local edge=16
+	local edge=5
 	for row = 1, #map do
 		for col =1,#map[row] do
 			if map[row][col] == 0 then
