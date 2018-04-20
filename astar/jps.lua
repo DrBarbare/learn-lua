@@ -84,9 +84,15 @@ local function forcedNeighbor(pathable, current, ori, tgtPos)
 	-- 4 X 6
 	-- 7 8 9
 	if orilen == 2 then
-		if not pathableNeightbor(2) or not pathableNeightbor(4) then return current end
-		return jump(pathable, current, deltas[ string.sub(ori, 1, 1) ], tgtPos)
-		       or jump(pathable, current, deltas[ string.sub(ori, 2, 2) ], tgtPos)
+		if not pathableNeightbor(2) or not pathableNeightbor(4) then
+			return current
+		elseif jump(pathable, current, deltas[ string.sub(ori, 1, 1) ], tgtPos)
+			or jump(pathable, current, deltas[ string.sub(ori, 2, 2) ], tgtPos) then
+			return current
+		else
+			return nil
+		end
+
 
 	-- Straight case
 	-- 1 2 3

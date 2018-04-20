@@ -21,9 +21,16 @@ local function score(currentNode, pos, tgtPos)
 	dx = pos.x - currentNode.pos.x
 	dy = pos.y - currentNode.pos.y
 
-	candidateNode = jump(mapPathable, candidateNode, { x = dx, y = dy }, tgtPos ) or candidateNode
+	if doJps then
+		tmp = jump(mapPathable, candidateNode, { x = dx, y = dy }, tgtPos )
+		if tmp then
+			dx = tmp.pos.x - currentNode.pos.x
+			dy = tmp.pos.y - currentNode.pos.y
+			candidateNode = tmp
+		end
+	end
 
-	candidateNode.G = currentNode.G + ((dx ~= 0 and dy ~= 0) and math.sqrt(2) or 1)
+	candidateNode.G = currentNode.G + math.sqrt(dx * dx + dy * dy)
 	candidateNode.H = heuristic(pos, tgtPos)
 	candidateNode.F = candidateNode.G + candidateNode.H
 	return candidateNode
@@ -46,6 +53,10 @@ end
 
 local function pathable(map, x, y)
 	return map[y] and map[y][x] and map[y][x] == 1
+end
+
+function AStar.toggleJPS()
+	doJps = not doJps
 end
 
 function AStar.findPath(map, myPos, tgtPos)

@@ -47,6 +47,8 @@ function love.keypressed(key)
 	if key == 'space' or key == ' ' then
 		target.pos.x = cursor.pos.x
 		target.pos.y = cursor.pos.y
+	elseif key == 'j' then
+		AStar.toggleJPS()
 	elseif key == 'q' or key == 'escape' then
 		love.event.quit()
 	end
